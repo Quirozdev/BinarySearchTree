@@ -4,4 +4,12 @@ export default class Node {
     this.leftChildren = null;
     this.rightChildren = null;
   }
+
+  isLeaf() {
+    return this.leftChildren === null && this.rightChildren === null;
+  }
+
+  hasTwoChilds() {
+    return this.leftChildren !== null && this.rightChildren !== null;
+  }
 }
