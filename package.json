@@ -1,0 +1,13 @@
+{
+  "name": "binarysearchtree",
+  "version": "1.0.0",
+  "description": "Project for the \"JavaScript Course\" of The Odin Project",
+  "main": "binarySearchTree.js",
+  "type": "module",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
+}
