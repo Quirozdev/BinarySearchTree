@@ -36,3 +36,14 @@ function merge(arr1, arr2) {
 export function removeDuplicates(arr) {
   return [...new Set(arr)];
 }
+
+export function createArrayWithRandomNumbers(size, minimumValue, maximumValue) {
+  const arr = [];
+  for (let i = 0; i < size; i++) {
+    arr.push(
+      Math.floor(Math.random() * (maximumValue - minimumValue + 1)) +
+        minimumValue
+    );
+  }
+  return arr;
+}

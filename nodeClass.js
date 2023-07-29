@@ -12,4 +12,8 @@ export default class Node {
   hasTwoChilds() {
     return this.leftChildren !== null && this.rightChildren !== null;
   }
+
+  getAllChildren() {
+    return [this.leftChildren, this.rightChildren];
+  }
 }

@@ -1,5 +1,6 @@
 import Node from './nodeClass.js';
 import { mergeSort, removeDuplicates } from './utils.js';
+import Queue from './queue.js';
 
 export default class Tree {
   constructor(arr) {
@@ -88,7 +89,7 @@ export default class Tree {
 
     // Third case: The node has two childs
     const rootNodeOfNodeToDelete = this.findRootFromNode(node);
-    const leftMostNode = this.findLeftMostNode(node.rightChildren);
+    const leftMostNode = this.findInOrderSuccesor(node.rightChildren);
     const rootNodeOfNodeToReplace = this.findRootFromNode(leftMostNode);
 
     // if the root is being deleted and has two childs
@@ -106,7 +107,7 @@ export default class Tree {
     node.value = leftMostNode.value;
   }
 
-  findLeftMostNode(rootNode) {
+  findInOrderSuccesor(rootNode) {
     let currentNode = rootNode;
     while (currentNode !== null) {
       if (currentNode.leftChildren === null) {
@@ -130,6 +131,76 @@ export default class Tree {
     } else {
       return this.find(value, rootNode.rightChildren);
     }
+  }
+
+  levelOrder(func) {
+    const queue = new Queue();
+    const arr = [];
+    queue.push(this.root);
+    while (!queue.isEmpty()) {
+      const currentNode = queue.pull();
+      if (!func) {
+        arr.push(currentNode);
+      } else {
+        func(currentNode);
+      }
+      const [leftChildren, rightChildren] = currentNode.getAllChildren();
+      if (leftChildren) queue.push(leftChildren);
+      if (rightChildren) queue.push(rightChildren);
+    }
+    return arr;
+  }
+
+  inOrder(func, currentNode = this.root) {
+    if (currentNode === null) {
+      return [];
+    }
+
+    const leftSideArr = this.inOrder(func, currentNode.leftChildren);
+    if (!func) {
+      leftSideArr.push(currentNode);
+    } else {
+      func(currentNode);
+    }
+
+    const rightSideArr = this.inOrder(func, currentNode.rightChildren);
+    return leftSideArr.concat(rightSideArr);
+  }
+
+  preOrder(func, currentNode = this.root) {
+    if (currentNode === null) {
+      return [];
+    }
+    const arr = [];
+
+    if (!func) {
+      arr.push(currentNode);
+    } else {
+      func(currentNode);
+    }
+
+    const leftSideArr = this.preOrder(func, currentNode.leftChildren);
+
+    const rightSideArr = this.preOrder(func, currentNode.rightChildren);
+    return arr.concat(leftSideArr, rightSideArr);
+  }
+
+  postOrder(func, currentNode = this.root) {
+    if (currentNode === null) {
+      return [];
+    }
+
+    const leftSideArr = this.postOrder(func, currentNode.leftChildren);
+
+    const rightSideArr = this.postOrder(func, currentNode.rightChildren);
+
+    if (!func) {
+      rightSideArr.push(currentNode);
+    } else {
+      func(currentNode);
+    }
+
+    return leftSideArr.concat(rightSideArr);
   }
 
   isNodeRootOfAnotherNode(rootNode, childNode) {
@@ -157,11 +228,62 @@ export default class Tree {
     }
   }
 
+  height(node) {
+    if (node === null) {
+      return 0;
+    }
+
+    if (node.isLeaf()) {
+      return 0;
+    }
+
+    const leftSubTreeHeight = this.height(node.leftChildren) + 1;
+    const rightSubTreeHeight = this.height(node.rightChildren) + 1;
+
+    return Math.max(leftSubTreeHeight, rightSubTreeHeight);
+  }
+
+  depth(node, rootNode = this.root) {
+    if (node === null) {
+      return -1;
+    }
+    if (rootNode.value === node.value) {
+      return 0;
+    }
+
+    const [leftChildren, rightChildren] = rootNode.getAllChildren();
+    if (leftChildren) {
+      const leftDepth = this.depth(node, rootNode.leftChildren) + 1;
+      if (leftDepth) return leftDepth;
+    }
+    if (rightChildren) {
+      const rightDepth = this.depth(node, rootNode.rightChildren) + 1;
+      if (rightDepth) return rightDepth;
+    }
+  }
+
+  isBalanced() {
+    let balanced = true;
+    this.levelOrder((currentNode) => {
+      const leftSubTreeHeight = this.height(currentNode.leftChildren);
+      const rightSubTreeHeight = this.height(currentNode.rightChildren);
+      if (Math.abs(leftSubTreeHeight - rightSubTreeHeight) > 1) {
+        balanced = false;
+      }
+    });
+    return balanced;
+  }
+
+  rebalance() {
+    const newSortedArr = this.inOrder().map((node) => node.value);
+    this.root = this.buildTree(newSortedArr, 0, newSortedArr.length - 1);
+  }
+
   isNodeInTheTree(value) {
     return this.find(value) ? true : false;
   }
 
-  prettyPrint(node, prefix = '', isLeft = true) {
+  prettyPrint(node = this.root, prefix = '', isLeft = true) {
     if (node === null) {
       return;
     }
